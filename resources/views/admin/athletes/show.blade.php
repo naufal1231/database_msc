@@ -9,7 +9,10 @@
     <div class="data-card">
         <div class="card-header">
             <h3 class="card-title">Profil Atlet</h3>
-            <div style="display: flex; gap: 0.5rem;">
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <a href="{{ route('event-history.show', $athlete->id) }}" class="btn btn-primary" style="background-color: #0369a1; color: #fff; max-width: 150px;">
+                    📊 Riwayat Event
+                </a>
                 <a href="{{ route('athletes.edit', $athlete->id) }}" class="btn btn-primary" style="background-color: #ffb700; color: #fff; max-width: 120px;">
                     📝 Edit
                 </a>

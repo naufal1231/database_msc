@@ -50,9 +50,16 @@
         <div class="data-card" style="margin-bottom: 0;">
             <div class="card-header">
                 <h3 class="card-title">Profil Atlet Anak</h3>
-                <span class="badge badge-success" style="background-color: var(--bg-light); color: var(--primary); border: 1px solid rgba(2, 132, 199, 0.2);">
-                    {{ $selectedChild->currentClass->name }}
-                </span>
+                <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                    <a href="{{ route('parent.event-history.show', $selectedChild->id) }}"
+                       style="padding: 0.45rem 1rem; border-radius: 0.65rem; font-size: 0.82rem; font-weight: 700; text-decoration: none; background: rgba(91,168,232,0.12); border: 1px solid rgba(91,168,232,0.25); color: #5ba8e8; transition: all 0.2s ease;"
+                       onmouseover="this.style.background='rgba(91,168,232,0.22)'" onmouseout="this.style.background='rgba(91,168,232,0.12)'">
+                        📊 Riwayat Perlombaan
+                    </a>
+                    <span class="badge badge-success" style="background-color: var(--bg-light); color: var(--primary); border: 1px solid rgba(2, 132, 199, 0.2);">
+                        {{ $selectedChild->currentClass->name }}
+                    </span>
+                </div>
             </div>
             <hr style="margin: 1.25rem 0; border: none; border-bottom: 1px solid var(--border-color);">
 

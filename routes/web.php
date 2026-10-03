@@ -30,6 +30,10 @@ Route::middleware(['auth', 'active', 'role:admin,super_admin'])->prefix('admin')
 
     Route::resource('athletes', \App\Http\Controllers\AthleteController::class);
 
+    // Event History Routes
+    Route::get('event-history', [\App\Http\Controllers\EventHistoryController::class, 'index'])->name('event-history.index');
+    Route::get('athletes/{athlete}/event-history', [\App\Http\Controllers\EventHistoryController::class, 'show'])->name('event-history.show');
+
     // Reports Route
     Route::get('reports', [\App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
 
@@ -58,6 +62,8 @@ Route::middleware(['auth', 'active', 'role:user'])->prefix('parent')->group(func
     Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'parentDashboard'])->name('parent.dashboard');
     Route::get('/absensi', [\App\Http\Controllers\ParentController::class, 'attendanceHistory'])->name('parent.attendance');
     Route::get('/absensi/{month}/{year}', [\App\Http\Controllers\ParentController::class, 'attendanceMonthly'])->name('parent.attendance.monthly');
+    // Event History for parent (secured by parentShow method)
+    Route::get('/event-history/{athlete}', [\App\Http\Controllers\EventHistoryController::class, 'parentShow'])->name('parent.event-history.show');
 });
 
 Route::middleware('auth')->group(function () {

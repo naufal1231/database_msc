@@ -52,6 +52,12 @@
                             <span class="nav-label">Laporan Kemajuan</span>
                         </a>
                     </li>
+                    <li class="nav-item {{ request()->routeIs('event-history.*') ? 'active' : '' }}">
+                        <a href="{{ route('event-history.index') }}">
+                            <span class="nav-icon">📊</span>
+                            <span class="nav-label">riwayat perlombaan</span>
+                        </a>
+                    </li>
                     @if(auth()->user()->role === 'super_admin')
                         <li class="nav-item {{ request()->routeIs('settings.*') ? 'active' : '' }}">
                             <a href="{{ route('settings.index') }}">
