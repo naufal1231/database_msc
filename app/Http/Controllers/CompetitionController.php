@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Competition;
 use App\Models\CompetitionEvent;
+use App\Services\CompetitionPointService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 use App\Exports\FormA1Export;
 use App\Exports\FormA2Export;
 use App\Exports\FormA3Export;
@@ -31,8 +33,10 @@ class CompetitionController extends Controller
             'location' => ['required', 'string', 'max:255'],
             'start_date' => ['required', 'date'],
             'end_date' => ['required', 'date', 'after_or_equal:start_date'],
-            'status' => ['required', 'in:akan_datang,berlangsung,selesai'],
+            'status' => ['nullable', 'in:akan_datang,berlangsung,selesai'],
         ]);
+
+        $data['status'] = Competition::determineStatus($data['start_date'], $data['end_date']);
 
         $competition = Competition::create($data);
 
@@ -74,11 +78,46 @@ class CompetitionController extends Controller
 
     public function show(Competition $competition)
     {
-        $competition->load(['events' => function($q) {
+        // Eager-load untuk tampilan Per Nomor Lomba (tidak berubah)
+        // sekaligus menyiapkan data untuk tampilan Per Atlet (nested entries.athlete + entries.result)
+        $competition->load(['events' => function ($q) {
             $q->orderBy('stroke')->orderBy('distance');
-        }]);
-        
-        return view('admin.competitions.show', compact('competition'));
+        }, 'events.entries.athlete', 'events.entries.result']);
+
+        // Baca settings dari JSON (pola yang sama dengan SettingController)
+        $settingsFile = storage_path('app/settings.json');
+        $rawSettings  = File::exists($settingsFile)
+            ? (json_decode(File::get($settingsFile), true) ?? [])
+            : [];
+
+        $cfg        = CompetitionPointService::resolveSettings($rawSettings);
+        $athleteView = CompetitionPointService::buildAthleteView($competition, $cfg);
+
+        return view('admin.competitions.show', compact('competition', 'athleteView', 'cfg'));
+    }
+
+    public function edit(Competition $competition)
+    {
+        return view('admin.competitions.edit', compact('competition'));
+    }
+
+    public function update(Request $request, Competition $competition)
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'organizer' => ['required', 'string', 'max:255'],
+            'location' => ['required', 'string', 'max:255'],
+            'start_date' => ['required', 'date'],
+            'end_date' => ['required', 'date', 'after_or_equal:start_date'],
+            'status' => ['nullable', 'in:akan_datang,berlangsung,selesai'],
+        ]);
+
+        $data['status'] = Competition::determineStatus($data['start_date'], $data['end_date']);
+
+        $competition->update($data);
+
+        return redirect()->route('competitions.show', $competition->id)
+            ->with('success', 'Event perlombaan berhasil diperbarui.');
     }
 
     public function destroy(Competition $competition)

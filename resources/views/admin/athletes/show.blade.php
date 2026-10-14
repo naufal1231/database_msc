@@ -243,7 +243,7 @@
                         label: 'Catatan Waktu (Detik)',
                         data: dataValues,
                         borderColor: '#0284c7',
-                        backgroundColor: 'rgba(2, 132, 199, 0.1)',
+                        // backgroundColor: 'rgba(2, 132, 199, 0.1)',
                         borderWidth: 3,
                         pointBackgroundColor: '#f97316',
                         pointBorderColor: '#ffffff',
@@ -257,18 +257,19 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            ticks: {
-                                callback: function(value) {
-                                    return formatCentiseconds(value * 100);
-                                }
-                            },
-                            title: {
-                                display: true,
-                                text: 'Waktu (MM.SS.CC)'
-                            }
-                        },
+                     scales: {
+                         y: {
+                             reverse: true,  // Waktu tercepat di atas, terlambat di bawah
+                             ticks: {
+                                 callback: function(value) {
+                                     return formatCentiseconds(value * 100);
+                                 }
+                             },
+                             title: {
+                                 display: true,
+                                 text: 'Waktu (MM.SS.CC)'
+                             }
+                         },
                         x: {
                             grid: {
                                 display: false

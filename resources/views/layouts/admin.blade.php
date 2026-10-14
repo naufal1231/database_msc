@@ -58,7 +58,7 @@
                             <span class="nav-label">riwayat perlombaan</span>
                         </a>
                     </li>
-                    @if(auth()->user()->role === 'super_admin')
+                    @if(in_array(auth()->user()->role, ['super_admin', 'admin']))
                         <li class="nav-item {{ request()->routeIs('settings.*') ? 'active' : '' }}">
                             <a href="{{ route('settings.index') }}">
                                 <span class="nav-icon">⚙️</span>

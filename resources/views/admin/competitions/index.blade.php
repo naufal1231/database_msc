@@ -53,11 +53,19 @@
                             @else
                                 <span class="badge badge-success">Selesai</span>
                             @endif
+                            @if($comp->status_keterangan)
+                                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">
+                                    {{ $comp->status_keterangan }}
+                                </div>
+                            @endif
                         </td>
                         <td style="text-align: center;">
-                            <div style="display: flex; gap: 0.35rem; justify-content: center;">
+                            <div style="display: flex; gap: 0.35rem; justify-content: center; flex-wrap: wrap;">
                                 <a href="{{ route('competitions.show', $comp->id) }}" class="btn btn-primary" style="padding: 0.4rem 0.75rem; font-size: 0.8rem; background-color: #0284c7;">
-                                    Kelola Event
+                                    Kelola
+                                </a>
+                                <a href="{{ route('competitions.edit', $comp->id) }}" class="btn btn-primary" style="padding: 0.4rem 0.75rem; font-size: 0.8rem; background-color: #4f46e5;">
+                                    Edit
                                 </a>
                                 <form action="{{ route('competitions.destroy', $comp->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus event ini? Seluruh data pendaftaran atlet dan catatan waktu di event ini akan terhapus permanen.');" style="display: inline;">
                                     @csrf

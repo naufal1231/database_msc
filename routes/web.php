@@ -20,8 +20,12 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 // Super Admin Routes
 Route::middleware(['auth', 'active', 'role:super_admin'])->prefix('super-admin')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'superAdminDashboard'])->name('super_admin.dashboard');
-    Route::get('/settings', [\App\Http\Controllers\SettingController::class, 'index'])->name('settings.index');
     Route::post('/settings', [\App\Http\Controllers\SettingController::class, 'update'])->name('settings.update');
+});
+
+// Settings (bisa dilihat oleh admin & super_admin, update hanya super_admin)
+Route::middleware(['auth', 'active', 'role:admin,super_admin'])->prefix('super-admin')->group(function () {
+    Route::get('/settings', [\App\Http\Controllers\SettingController::class, 'index'])->name('settings.index');
 });
 
 // Admin (Pelatih) Routes

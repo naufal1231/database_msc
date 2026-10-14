@@ -48,14 +48,21 @@
             </div>
         </div>
 
-        <!-- Status Event -->
+        <!-- Status Event (Otomatis Berdasarkan Tanggal) -->
         <div class="form-group">
-            <label for="status" class="form-label">Status Awal Event *</label>
-            <select name="status" id="status" class="form-input" required>
-                <option value="akan_datang" {{ old('status') === 'akan_datang' ? 'selected' : '' }}>Akan Datang</option>
-                <option value="berlangsung" {{ old('status') === 'berlangsung' ? 'selected' : '' }}>Berlangsung</option>
-                <option value="selesai" {{ old('status') === 'selesai' ? 'selected' : '' }}>Selesai</option>
+            <label for="status" class="form-label" style="display: flex; justify-content: space-between; align-items: center;">
+                <span>Status Perlombaan *</span>
+                <span style="font-size: 0.8rem; font-weight: normal; color: var(--primary-hover);">⚡ Ditentukan Otomatis dari Tanggal</span>
+            </label>
+            <select name="status" id="status" class="form-input" required style="background-color: var(--bg-light); font-weight: 600;">
+                <option value="akan_datang" {{ old('status') === 'akan_datang' ? 'selected' : '' }}>⏳ Akan Datang</option>
+                <option value="berlangsung" {{ old('status') === 'berlangsung' ? 'selected' : '' }}>🔥 Berlangsung</option>
+                <option value="selesai" {{ old('status') === 'selesai' ? 'selected' : '' }}>✅ Selesai</option>
             </select>
+            <div id="status-info-box" style="margin-top: 0.5rem; padding: 0.75rem 1rem; border-radius: 0.5rem; font-size: 0.85rem; display: flex; align-items: center; gap: 0.6rem; transition: all 0.3s ease;">
+                <span id="status-icon" style="font-size: 1.1rem;">📅</span>
+                <span id="status-keterangan">Keterangan status akan disesuaikan otomatis dengan tanggal yang dipilih.</span>
+            </div>
         </div>
 
         <!-- Auto Create Default Events -->
@@ -74,4 +81,74 @@
         </button>
     </form>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const startDateInput = document.getElementById('start_date');
+    const endDateInput = document.getElementById('end_date');
+    const statusSelect = document.getElementById('status');
+    const statusInfoBox = document.getElementById('status-info-box');
+    const statusIcon = document.getElementById('status-icon');
+    const statusKeterangan = document.getElementById('status-keterangan');
+
+    function getTodayString() {
+        const d = new Date();
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    function updateStatus() {
+        const startDate = startDateInput.value;
+        const endDate = endDateInput.value;
+        const today = getTodayString();
+
+        if (!startDate || !endDate) return;
+
+        // Jika end_date lebih awal dari start_date, otomatis sesuaikan end_date
+        if (endDate < startDate) {
+            endDateInput.value = startDate;
+        }
+
+        const validEndDate = endDateInput.value;
+
+        if (today < startDate) {
+            statusSelect.value = 'akan_datang';
+            if (statusInfoBox) {
+                statusInfoBox.style.background = '#e0f2fe';
+                statusInfoBox.style.color = '#0369a1';
+                statusInfoBox.style.border = '1px solid #bae6fd';
+                statusIcon.textContent = '⏳';
+                statusKeterangan.innerHTML = 'Keterangan: Diinput <strong>sebelum tanggal berlangsung</strong>, otomatis berstatus <strong>Akan Datang</strong>.';
+            }
+        } else if (today > validEndDate) {
+            statusSelect.value = 'selesai';
+            if (statusInfoBox) {
+                statusInfoBox.style.background = '#dcfce7';
+                statusInfoBox.style.color = '#15803d';
+                statusInfoBox.style.border = '1px solid #bbf7d0';
+                statusIcon.textContent = '✅';
+                statusKeterangan.innerHTML = 'Keterangan: Tanggal <strong>telah melewati jadwal pertandingan</strong>, otomatis berstatus <strong>Selesai</strong>.';
+            }
+        } else {
+            statusSelect.value = 'berlangsung';
+            if (statusInfoBox) {
+                statusInfoBox.style.background = '#ffedd5';
+                statusInfoBox.style.color = '#c2410c';
+                statusInfoBox.style.border = '1px solid #fed7aa';
+                statusIcon.textContent = '🔥';
+                statusKeterangan.innerHTML = 'Keterangan: Tanggal <strong>sesuai dengan jadwal pertandingan</strong>, otomatis berstatus <strong>Berlangsung</strong>.';
+            }
+        }
+    }
+
+    startDateInput.addEventListener('change', updateStatus);
+    startDateInput.addEventListener('input', updateStatus);
+    endDateInput.addEventListener('change', updateStatus);
+    endDateInput.addEventListener('input', updateStatus);
+
+    updateStatus();
+});
+</script>
 @endsection
