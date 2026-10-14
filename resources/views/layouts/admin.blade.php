@@ -80,6 +80,9 @@
             </div>
         </aside>
 
+        <!-- ─── MOBILE OVERLAY ─── -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
         <!-- ─── MAIN CONTENT ─── -->
         <main class="main-content" id="mainContent">
             <!-- Topbar -->
@@ -91,7 +94,7 @@
                     <h2 class="topbar-title">@yield('header_title', 'Database Atlet')</h2>
                 </div>
                 <div class="user-profile">
-                    <div class="user-info">
+                    <div class="user-info topbar-user-info">
                         <div class="user-name">{{ auth()->user()->name }}</div>
                         <div class="user-role">
                             {{ auth()->user()->role === 'super_admin' ? 'Pelatih Kepala' : 'Pelatih Kelas' }}
@@ -134,25 +137,110 @@
 
     <script>
         (function() {
-            const sidebar = document.getElementById('appSidebar');
-            const main = document.getElementById('mainContent');
-            const toggleBtn = document.getElementById('sidebarToggle');
-            const STORAGE_KEY = 'msc_sidebar_collapsed';
+            var sidebar  = document.getElementById('appSidebar');
+            var main     = document.getElementById('mainContent');
+            var toggleBtn = document.getElementById('sidebarToggle');
+            var overlay  = document.getElementById('sidebarOverlay');
+            var STORAGE_KEY = 'msc_sidebar_collapsed';
 
-            // Restore state from localStorage
-            const isCollapsed = localStorage.getItem(STORAGE_KEY) === 'true';
-            if (isCollapsed) {
-                sidebar.classList.add('collapsed');
-                main.classList.add('sidebar-collapsed');
+            // Reliable mobile detection using matchMedia
+            var mq = window.matchMedia('(max-width: 768px)');
+
+            function isMobile() {
+                return mq.matches;
             }
 
+            /* ── MOBILE ── */
+            function openMobileSidebar() {
+                sidebar.classList.add('mobile-open');
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeMobileSidebar() {
+                sidebar.classList.remove('mobile-open');
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            /* ── DESKTOP ── */
+            function applyDesktopState() {
+                var collapsed = localStorage.getItem(STORAGE_KEY) === 'true';
+                sidebar.classList.toggle('collapsed', collapsed);
+                main.classList.toggle('sidebar-collapsed', collapsed);
+            }
+
+            function cleanupMobileState() {
+                sidebar.classList.remove('mobile-open');
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            // Initial state on page load
+            if (isMobile()) {
+                // Ensure sidebar is hidden off-screen on mobile load
+                cleanupMobileState();
+                sidebar.classList.remove('collapsed');
+                main.classList.remove('sidebar-collapsed');
+            } else {
+                applyDesktopState();
+            }
+
+            // Toggle button click
             toggleBtn.addEventListener('click', function() {
-                const nowCollapsed = sidebar.classList.toggle('collapsed');
-                main.classList.toggle('sidebar-collapsed', nowCollapsed);
-                localStorage.setItem(STORAGE_KEY, nowCollapsed ? 'true' : 'false');
+                if (isMobile()) {
+                    if (sidebar.classList.contains('mobile-open')) {
+                        closeMobileSidebar();
+                    } else {
+                        openMobileSidebar();
+                    }
+                } else {
+                    var nowCollapsed = sidebar.classList.toggle('collapsed');
+                    main.classList.toggle('sidebar-collapsed', nowCollapsed);
+                    localStorage.setItem(STORAGE_KEY, nowCollapsed ? 'true' : 'false');
+                }
+            });
+
+            // Overlay click closes sidebar
+            overlay.addEventListener('click', closeMobileSidebar);
+
+            // Nav link click closes sidebar on mobile (allows navigation)
+            sidebar.querySelectorAll('.nav-item a').forEach(function(link) {
+                link.addEventListener('click', function() {
+                    if (isMobile()) {
+                        closeMobileSidebar();
+                    }
+                });
+            });
+
+            // Swipe left on sidebar to close (touch support)
+            var touchStartX = 0;
+            sidebar.addEventListener('touchstart', function(e) {
+                touchStartX = e.touches[0].clientX;
+            }, { passive: true });
+            sidebar.addEventListener('touchend', function(e) {
+                var dx = e.changedTouches[0].clientX - touchStartX;
+                if (dx < -60 && isMobile()) { // swipe left >= 60px
+                    closeMobileSidebar();
+                }
+            }, { passive: true });
+
+            // On resize: sync state between mobile/desktop
+            mq.addEventListener('change', function(e) {
+                if (e.matches) {
+                    // Switched to mobile
+                    cleanupMobileState();
+                    sidebar.classList.remove('collapsed');
+                    main.classList.remove('sidebar-collapsed');
+                } else {
+                    // Switched to desktop
+                    cleanupMobileState();
+                    applyDesktopState();
+                }
             });
         })();
     </script>
+
 
     @yield('scripts')
 </body>

@@ -953,27 +953,172 @@ body {
     text-decoration-color: var(--silver-200);
 }
 
+/* ─── SIDEBAR OVERLAY (mobile backdrop) ─── */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(4, 13, 26, 0.75);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 99;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar-overlay.active {
+    opacity: 1;
+}
+
 /* ─── RESPONSIVE ─── */
 @media (max-width: 768px) {
+    /* On mobile, layout becomes a single block — sidebar is a pure overlay */
+    .admin-layout {
+        display: block;
+        overflow-x: hidden;
+    }
+
+    /* Sidebar: always fixed, always off-screen initially */
     .sidebar {
-        position: fixed;
+        position: fixed !important;
         top: 0;
         left: 0;
         bottom: 0;
-        z-index: 100;
-        transform: translateX(-100%);
-        transition: transform 0.3s ease;
+        height: 100vh !important;
+        width: 260px !important;
+        min-width: 260px !important;
+        z-index: 200;
+        transform: translateX(-100%) !important;
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        /* Disable the width/min-width transition from desktop */
     }
+
+    /* When open, slide in */
     .sidebar.mobile-open {
-        transform: translateX(0);
+        transform: translateX(0) !important;
+        box-shadow: 8px 0 48px rgba(0, 0, 0, 0.7);
     }
+
+    /* Activate overlay on mobile */
+    .sidebar-overlay {
+        display: block;
+        pointer-events: none;
+    }
+    .sidebar-overlay.active {
+        pointer-events: auto;
+    }
+
+    /* Main content takes full width — sidebar is no longer in the flex row */
     .main-content {
+        width: 100% !important;
         margin-left: 0 !important;
+        min-height: 100vh;
     }
-    .content-body {
-        padding: 1.5rem 1rem;
-    }
+
+    /* Topbar */
     .topbar {
-        padding: 0 1rem;
+        padding: 0 0.875rem;
+        height: 60px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+
+    /* Toggle button — bigger tap target on mobile */
+    .sidebar-toggle-btn {
+        width: 42px;
+        height: 42px;
+        font-size: 1.25rem;
+        min-width: 42px;
+    }
+
+    /* Hide user name/role text on mobile to save space */
+    .topbar-user-info {
+        display: none !important;
+    }
+
+    /* Topbar title */
+    .topbar-title {
+        font-size: 0.9rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 200px;
+    }
+
+    /* Content body padding */
+    .content-body {
+        padding: 1.25rem 0.875rem;
+    }
+
+    /* Card padding */
+    .data-card {
+        padding: 1.25rem 1rem;
+        border-radius: 1rem;
+        margin-bottom: 1.25rem;
+    }
+
+    /* Card header stacks */
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    /* Filter bar stacks */
+    .filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .filter-bar .form-input,
+    .filter-bar select,
+    .filter-bar input {
+        width: 100%;
+        min-width: unset;
+    }
+    .filter-bar .btn {
+        width: 100%;
+    }
+
+    /* Tables scroll horizontally */
+    .table-responsive {
+        border-radius: 0.75rem;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    .table th,
+    .table td {
+        padding: 0.75rem 0.85rem;
+        font-size: 0.8rem;
+        white-space: nowrap;
+    }
+
+    /* Modal sheet from bottom on mobile */
+    .modal-overlay {
+        padding: 0.75rem;
+        align-items: flex-end;
+    }
+    .modal-box {
+        max-height: 90vh;
+        border-radius: 1.25rem 1.25rem 0 0;
+    }
+
+    /* Profile grid: single column */
+    .profile-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Small action buttons in card header */
+    .card-header .btn {
+        font-size: 0.78rem;
+        padding: 0.6rem 1rem;
     }
 }
+
+@media (max-width: 480px) {
+    .content-body { padding: 1rem 0.75rem; }
+    .topbar-title { font-size: 0.82rem; max-width: 150px; }
+    .data-card { padding: 1rem 0.875rem; }
+    .table th, .table td { padding: 0.65rem 0.75rem; font-size: 0.78rem; }
+}
+

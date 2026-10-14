@@ -48,6 +48,9 @@
             </div>
         </aside>
 
+        <!-- ─── MOBILE OVERLAY ─── -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
         <!-- ─── MAIN CONTENT ─── -->
         <main class="main-content" id="mainContent">
             <!-- Topbar -->
@@ -90,24 +93,84 @@
 
     <script>
         (function() {
-            const sidebar = document.getElementById('appSidebar');
-            const main = document.getElementById('mainContent');
-            const toggleBtn = document.getElementById('sidebarToggle');
-            const STORAGE_KEY = 'msc_sidebar_collapsed';
+            var sidebar   = document.getElementById('appSidebar');
+            var main      = document.getElementById('mainContent');
+            var toggleBtn = document.getElementById('sidebarToggle');
+            var overlay   = document.getElementById('sidebarOverlay');
+            var STORAGE_KEY = 'msc_sidebar_collapsed';
 
-            const isCollapsed = localStorage.getItem(STORAGE_KEY) === 'true';
-            if (isCollapsed) {
-                sidebar.classList.add('collapsed');
-                main.classList.add('sidebar-collapsed');
+            var mq = window.matchMedia('(max-width: 768px)');
+            function isMobile() { return mq.matches; }
+
+            function openMobileSidebar() {
+                sidebar.classList.add('mobile-open');
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+            function closeMobileSidebar() {
+                sidebar.classList.remove('mobile-open');
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+            function applyDesktopState() {
+                var collapsed = localStorage.getItem(STORAGE_KEY) === 'true';
+                sidebar.classList.toggle('collapsed', collapsed);
+                main.classList.toggle('sidebar-collapsed', collapsed);
+            }
+            function cleanupMobileState() {
+                sidebar.classList.remove('mobile-open');
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            if (isMobile()) {
+                cleanupMobileState();
+                sidebar.classList.remove('collapsed');
+                main.classList.remove('sidebar-collapsed');
+            } else {
+                applyDesktopState();
             }
 
             toggleBtn.addEventListener('click', function() {
-                const nowCollapsed = sidebar.classList.toggle('collapsed');
-                main.classList.toggle('sidebar-collapsed', nowCollapsed);
-                localStorage.setItem(STORAGE_KEY, nowCollapsed ? 'true' : 'false');
+                if (isMobile()) {
+                    sidebar.classList.contains('mobile-open') ? closeMobileSidebar() : openMobileSidebar();
+                } else {
+                    var nowCollapsed = sidebar.classList.toggle('collapsed');
+                    main.classList.toggle('sidebar-collapsed', nowCollapsed);
+                    localStorage.setItem(STORAGE_KEY, nowCollapsed ? 'true' : 'false');
+                }
+            });
+
+            overlay.addEventListener('click', closeMobileSidebar);
+
+            sidebar.querySelectorAll('.nav-item a').forEach(function(link) {
+                link.addEventListener('click', function() {
+                    if (isMobile()) closeMobileSidebar();
+                });
+            });
+
+            var touchStartX = 0;
+            sidebar.addEventListener('touchstart', function(e) {
+                touchStartX = e.touches[0].clientX;
+            }, { passive: true });
+            sidebar.addEventListener('touchend', function(e) {
+                if (e.changedTouches[0].clientX - touchStartX < -60 && isMobile()) {
+                    closeMobileSidebar();
+                }
+            }, { passive: true });
+
+            mq.addEventListener('change', function(e) {
+                cleanupMobileState();
+                if (e.matches) {
+                    sidebar.classList.remove('collapsed');
+                    main.classList.remove('sidebar-collapsed');
+                } else {
+                    applyDesktopState();
+                }
             });
         })();
     </script>
+
 
     @yield('scripts')
 </body>
