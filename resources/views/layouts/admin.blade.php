@@ -20,7 +20,7 @@
                 </div>
             </a>
 
-            <nav style="flex: 1;">
+            <nav class="sidebar-nav">
                 <ul class="nav-menu">
                     <li class="nav-item {{ request()->routeIs('admin.dashboard') || request()->routeIs('super_admin.dashboard') ? 'active' : '' }}">
                         <a href="{{ auth()->user()->role === 'super_admin' ? route('super_admin.dashboard') : route('admin.dashboard') }}">
@@ -215,12 +215,15 @@
 
             // Swipe left on sidebar to close (touch support)
             var touchStartX = 0;
+            var touchStartY = 0;
             sidebar.addEventListener('touchstart', function(e) {
                 touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
             }, { passive: true });
             sidebar.addEventListener('touchend', function(e) {
                 var dx = e.changedTouches[0].clientX - touchStartX;
-                if (dx < -60 && isMobile()) { // swipe left >= 60px
+                var dy = Math.abs(e.changedTouches[0].clientY - touchStartY);
+                if (dx < -60 && Math.abs(dx) > dy * 1.2 && isMobile()) { // dominant swipe left >= 60px
                     closeMobileSidebar();
                 }
             }, { passive: true });

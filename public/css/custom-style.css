@@ -400,12 +400,31 @@ body {
 }
 
 /* ─── NAV MENU ─── */
+.sidebar-nav,
+.sidebar > nav {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+}
+
+.sidebar-nav::-webkit-scrollbar,
+.sidebar > nav::-webkit-scrollbar {
+    width: 3px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb,
+.sidebar > nav::-webkit-scrollbar-thumb {
+    background: rgba(91, 168, 232, 0.2);
+    border-radius: 4px;
+}
+
 .nav-menu {
     list-style: none;
     display: flex;
     flex-direction: column;
     gap: 0.2rem;
-    flex: 1;
 }
 
 .nav-item {
@@ -978,25 +997,85 @@ body {
         overflow-x: hidden;
     }
 
-    /* Sidebar: always fixed, always off-screen initially */
+    /* Sidebar: fixed overlay with 100dvh support and vertical scroll */
     .sidebar {
         position: fixed !important;
         top: 0;
         left: 0;
         bottom: 0;
         height: 100vh !important;
-        width: 260px !important;
-        min-width: 260px !important;
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+        width: 290px !important;
+        max-width: 85vw !important;
+        min-width: unset !important;
         z-index: 200;
         transform: translateX(-100%) !important;
         transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
-        /* Disable the width/min-width transition from desktop */
+        display: flex !important;
+        flex-direction: column !important;
+        padding: 1.25rem 1rem !important;
+        padding-bottom: max(1.25rem, env(safe-area-inset-bottom, 1.25rem)) !important;
+        box-sizing: border-box !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        overscroll-behavior: contain !important;
     }
 
     /* When open, slide in */
     .sidebar.mobile-open {
         transform: translateX(0) !important;
-        box-shadow: 8px 0 48px rgba(0, 0, 0, 0.7);
+        box-shadow: 12px 0 48px rgba(0, 0, 0, 0.75);
+    }
+
+    /* Scrollable navigation inside sidebar on mobile */
+    .sidebar > nav,
+    .sidebar-nav {
+        flex: 1 1 auto !important;
+        min-height: 0 !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        padding-right: 0.25rem !important;
+        margin-bottom: 0.75rem !important;
+    }
+
+    /* Logout section aligned to mobile screen proportions */
+    .sidebar-logout {
+        flex-shrink: 0 !important;
+        margin-top: auto !important;
+        padding-top: 0.85rem !important;
+        border-top: 1px solid var(--glass-border) !important;
+        width: 100% !important;
+    }
+
+    .sidebar-logout form {
+        width: 100% !important;
+        margin: 0 !important;
+    }
+
+    .sidebar-logout .btn {
+        width: 100% !important;
+        min-height: 48px !important;
+        padding: 0.75rem 1.25rem !important;
+        font-size: 0.9rem !important;
+        font-weight: 700 !important;
+        letter-spacing: 0.3px !important;
+        border-radius: 0.85rem !important;
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.18) 0%, rgba(220, 38, 38, 0.12) 100%) !important;
+        border: 1px solid rgba(239, 68, 68, 0.35) !important;
+        color: #fca5a5 !important;
+        box-shadow: 0 4px 14px rgba(239, 68, 68, 0.12) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 0.65rem !important;
+        cursor: pointer !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .sidebar-logout .btn:active {
+        transform: scale(0.98) !important;
+        background: rgba(239, 68, 68, 0.3) !important;
     }
 
     /* Activate overlay on mobile */

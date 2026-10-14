@@ -20,7 +20,7 @@
                 </div>
             </a>
 
-            <nav style="flex: 1;">
+            <nav class="sidebar-nav">
                 <ul class="nav-menu">
                     <li class="nav-item active">
                         <a href="{{ route('parent.dashboard') }}">
@@ -150,11 +150,15 @@
             });
 
             var touchStartX = 0;
+            var touchStartY = 0;
             sidebar.addEventListener('touchstart', function(e) {
                 touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
             }, { passive: true });
             sidebar.addEventListener('touchend', function(e) {
-                if (e.changedTouches[0].clientX - touchStartX < -60 && isMobile()) {
+                var dx = e.changedTouches[0].clientX - touchStartX;
+                var dy = Math.abs(e.changedTouches[0].clientY - touchStartY);
+                if (dx < -60 && Math.abs(dx) > dy * 1.2 && isMobile()) {
                     closeMobileSidebar();
                 }
             }, { passive: true });
