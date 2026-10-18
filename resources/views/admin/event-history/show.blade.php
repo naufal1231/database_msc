@@ -41,7 +41,6 @@
         grid-template-columns: repeat(3, 1fr);
         gap: 1rem;
     }
-    @media(max-width:768px){ .eh-stat-row { grid-template-columns: 1fr; } }
     .eh-mini-stat {
         background: linear-gradient(160deg, rgba(12,24,48,0.85) 0%, rgba(6,15,34,0.9) 100%);
         border: 1px solid var(--glass-border);
@@ -154,18 +153,344 @@
         transition: all 0.2s ease;
     }
     .btn-primary-link:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(38,132,212,0.4); }
+
+    /* ── Mobile PB horizontal scroll strip ── */
+    @media (max-width: 768px) {
+        .pb-cards-grid {
+            display: flex;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scroll-snap-type: x mandatory;
+            gap: 0.75rem;
+            padding-bottom: 0.5rem;
+        }
+        .pb-cards-grid::-webkit-scrollbar { height: 3px; }
+        .pb-cards-grid::-webkit-scrollbar-thumb { background: rgba(91,168,232,0.25); border-radius: 2px; }
+        .pb-card {
+            min-width: 180px;
+            scroll-snap-align: start;
+        }
+        .pb-card-time { font-size: 1.4rem; }
+
+        /* Stat row: 3 compact cols */
+        .eh-stat-row { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+        .eh-mini-stat { padding: 0.875rem 0.625rem; }
+        .eh-mini-stat-val { font-size: 1.5rem; }
+
+        /* eh-section (per event) accordion on mobile */
+        .eh-section { border-radius: 0.875rem; }
+        .eh-section-header { padding: 0.75rem 1rem; border-radius: 0; cursor: pointer; }
+        .eh-section-title { font-size: 0.85rem; }
+
+        .eh-filter-row { display: none; } /* replaced by bottom sheet on mobile */
+    }
 </style>
 @endsection
 
 @section('content')
 @php
-    // Filter application (client-side section collapsing via URL param ?stroke=&year=)
     $filterStroke = request('stroke', '');
     $filterYear   = request('year', '');
     $filterEvent  = request('event_name', '');
+    $mobileFilterCount = ($filterStroke ? 1 : 0) + ($filterYear ? 1 : 0);
 @endphp
 
-<div style="display:flex;flex-direction:column;gap:1.75rem;">
+{{-- ═══════════════════════════════════════
+     MOBILE LAYOUT
+═══════════════════════════════════════ --}}
+<div class="mobile-only mobile-has-action-bar" style="display: flex; flex-direction: column; gap: 0.875rem;">
+
+    {{-- ── Profile Hero ──────────────────────── --}}
+    <div class="data-card" style="padding: 0; overflow: hidden;">
+        <div style="height: 4px; background: linear-gradient(90deg, #0369a1 0%, #5ba8e8 50%, #e8c96d 100%);"></div>
+        <div style="padding: 1.25rem 1rem;">
+            <div style="display: flex; align-items: center; gap: 0.875rem; margin-bottom: 1rem;">
+                <div class="eh-big-avatar" style="width: 54px; height: 54px; font-size: 1.2rem;">
+                    @if($athlete->photo)
+                        <img src="{{ asset('storage/'.$athlete->photo) }}" alt="{{ $athlete->name }}">
+                    @else
+                        {{ strtoupper(substr($athlete->name,0,1)) }}
+                    @endif
+                </div>
+                <div>
+                    <div style="font-size: 1rem; font-weight: 800; color: var(--silver-100);">{{ $athlete->name }}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.15rem;">
+                        📊 Riwayat Perlombaan
+                    </div>
+                </div>
+            </div>
+            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                <span class="info-tag">🏫 {{ $athlete->currentClass->name ?? '-' }}</span>
+                <span class="info-tag">📅 KU {{ $athlete->ku ?? '-' }}</span>
+                <span class="info-tag">{{ $athlete->gender === 'L' ? '♂ PA' : '♀ PI' }}</span>
+                @if($athlete->parentUser)
+                    <span class="info-tag">👤 {{ $athlete->parentUser->name }}</span>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    {{-- ── Stat Row ──────────────────────────── --}}
+    <div class="eh-stat-row">
+        <div class="eh-mini-stat">
+            <div class="eh-mini-stat-val blue">{{ count($historyRows) }}</div>
+            <div class="eh-mini-stat-lbl">Nomor</div>
+        </div>
+        <div class="eh-mini-stat">
+            <div class="eh-mini-stat-val green">{{ count($historyByEvent) }}</div>
+            <div class="eh-mini-stat-lbl">Kombinasi</div>
+        </div>
+        <div class="eh-mini-stat">
+            <div class="eh-mini-stat-val gold">{{ count($currentPBs) }}</div>
+            <div class="eh-mini-stat-lbl">PB</div>
+        </div>
+    </div>
+
+    {{-- ── Accordion: Personal Best ──────────── --}}
+    @if(count($currentPBs) > 0)
+    <div class="m-section-accordion open">
+        <div class="m-section-header">
+            <span class="m-section-header-title">🏅 Personal Best ({{ count($currentPBs) }} nomor)</span>
+            <span class="m-section-chevron">▾</span>
+        </div>
+        <div class="m-section-body">
+            <div class="m-section-body-inner" style="padding: 0.875rem;">
+                <div class="pb-cards-grid">
+                    @foreach($currentPBs as $key => $pb)
+                    <div class="pb-card">
+                        <div class="pb-card-label-ev">🏊 {{ $pb['event_label'] }}</div>
+                        <div class="pb-card-date">{{ $pb['competition_date'] }}</div>
+                        <div class="pb-card-time">{{ $pb['time_result'] }}</div>
+                        <div class="pb-card-sublabel">Waktu Terbaik</div>
+                        <div class="pb-card-comp">📍 {{ $pb['competition_name'] }}</div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    {{-- ── Mobile filter trigger (for event history) ── --}}
+    @if(count($historyRows) > 0)
+    <div>
+        <div class="mobile-header-row" style="margin-bottom: 0.5rem;">
+            <span style="flex: 1; display: flex; align-items: center;
+                         padding: 0.6rem 0.875rem; background: var(--navy-800);
+                         border: 1px solid var(--glass-border); border-radius: 0.65rem;
+                         font-size: 0.8rem; color: var(--text-muted);">
+                📋 {{ count($historyRows) }} riwayat
+                @php $filteredSections = collect($historyByEvent)->filter(function($evData) use ($filterStroke, $filterYear) {
+                    if ($filterStroke && $evData['stroke'] !== $filterStroke) return false;
+                    if ($filterYear) {
+                        $hasYear = collect($evData['history'])->contains(fn($r) => substr($r['competition_date'],0,4) === $filterYear);
+                        if (!$hasYear) return false;
+                    }
+                    return true;
+                }); @endphp
+                · {{ $filteredSections->count() }} nomor
+            </span>
+            <button type="button" id="open-show-filter-sheet" class="mobile-filter-btn">
+                ⚙ Filter
+                @if($mobileFilterCount > 0)
+                    <span class="mobile-filter-btn-badge">{{ $mobileFilterCount }}</span>
+                @endif
+            </button>
+        </div>
+
+        @if($filterStroke || $filterYear)
+        <div class="active-filter-chips">
+            @if($filterStroke)
+                <span class="active-chip">
+                    Gaya {{ ucfirst($filterStroke) }}
+                    <a href="{{ request()->fullUrlWithQuery(['stroke' => null]) }}" class="active-chip-remove">✕</a>
+                </span>
+            @endif
+            @if($filterYear)
+                <span class="active-chip">
+                    Tahun {{ $filterYear }}
+                    <a href="{{ request()->fullUrlWithQuery(['year' => null]) }}" class="active-chip-remove">✕</a>
+                </span>
+            @endif
+        </div>
+        @endif
+    </div>
+    @endif
+
+    {{-- ── History Sections per Event (Mobile Accordion) ── --}}
+    @if($filteredSections->count() > 0)
+        @foreach($filteredSections as $evKey => $evData)
+        @php
+            $sectionRows = collect($evData['history']);
+            if ($filterYear) {
+                $sectionRows = $sectionRows->filter(fn($r) => substr($r['competition_date'],0,4) === $filterYear);
+            }
+        @endphp
+        <div class="m-section-accordion">
+            <div class="m-section-header"
+                 style="background: linear-gradient(135deg, rgba(3,105,161,0.6) 0%, rgba(30,58,95,0.7) 100%);">
+                <span class="m-section-header-title">🏊 {{ $evData['event_label'] }}</span>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-size: 0.65rem; font-weight: 700; background: rgba(255,255,255,0.15);
+                                 color: #fff; padding: 0.15rem 0.5rem; border-radius: 99px;">
+                        {{ $sectionRows->count() }}×
+                    </span>
+                    <span class="m-section-chevron">▾</span>
+                </div>
+            </div>
+            <div class="m-section-body">
+                <div class="m-section-body-inner" style="padding: 0.75rem;">
+                    @foreach($sectionRows as $row)
+                    <div style="padding: 0.75rem 0; border-bottom: 1px solid var(--glass-border);">
+                        {{-- Row: Event name + date --}}
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                            <div style="font-size: 0.8rem; font-weight: 700; color: var(--silver-200); flex: 1; padding-right: 0.5rem;">
+                                {{ $row['competition_name'] }}
+                            </div>
+                            <div style="font-size: 0.72rem; color: var(--text-muted); white-space: nowrap; flex-shrink: 0;">
+                                {{ $row['competition_date_formatted'] }}
+                            </div>
+                        </div>
+
+                        {{-- Row: Result + rank + diff --}}
+                        <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                            {{-- Result --}}
+                            @if($row['result_status'] === 'finish')
+                                <span class="time-cell {{ $row['is_first_valid_result'] ? 'best' : 'normal' }}"
+                                      style="font-size: 1rem;">
+                                    {{ $row['time_result'] }}
+                                </span>
+                                @if($row['is_first_valid_result'])
+                                    <span style="font-size: 0.62rem; color: #4ade80; font-weight: 700; background: rgba(74,222,128,0.1); padding: 0.1rem 0.4rem; border-radius: 99px;">★ PB Awal</span>
+                                @endif
+                            @elseif($row['result_status'] === 'DNS')
+                                <span class="status-dns">DNS</span>
+                            @elseif($row['result_status'] === 'DQ')
+                                <span class="status-dq">DQ</span>
+                            @else
+                                <span style="color: var(--text-muted); font-size: 0.8rem;">—</span>
+                            @endif
+
+                            {{-- Rank --}}
+                            @if($row['rank'])
+                                <span style="font-weight: 800; font-size: 0.85rem;
+                                             color: {{ $row['rank'] == 1 ? '#e8c96d' : ($row['rank'] == 2 ? '#9ca3af' : ($row['rank'] == 3 ? '#fb923c' : 'var(--text-muted)')) }};">
+                                    #{{ $row['rank'] }}
+                                </span>
+                            @endif
+
+                            {{-- Diff --}}
+                            @if($row['result_status'] === 'finish' && !$row['is_first_valid_result'])
+                                @if($row['difference'] !== null)
+                                    @if($row['is_faster'] === true)
+                                        <span class="diff-faster" style="font-size: 0.78rem;">▲ {{ $row['difference'] }}</span>
+                                    @elseif($row['is_faster'] === false && $row['difference'] !== '00.00.00')
+                                        <span class="diff-slower" style="font-size: 0.78rem;">▼ {{ $row['difference'] }}</span>
+                                    @else
+                                        <span class="diff-equal" style="font-size: 0.78rem;">= PB</span>
+                                    @endif
+                                @endif
+                            @endif
+                        </div>
+
+                        {{-- PB before event (small) --}}
+                        @if($row['result_status'] === 'finish' && $row['pb_before_event'] && !$row['is_first_valid_result'])
+                        <div style="margin-top: 0.35rem; font-size: 0.68rem; color: var(--text-light-muted);">
+                            PB sebelumnya: <span class="pb-cell" style="font-size: 0.72rem;">{{ $row['pb_before_event'] }}</span>
+                        </div>
+                        @endif
+                    </div>
+                    @endforeach
+
+                    {{-- Footer note --}}
+                    <div style="font-size: 0.65rem; color: var(--text-light-muted); padding-top: 0.5rem; text-align: center;">
+                        ▲ lebih cepat · ▼ lebih lambat · #N = peringkat
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endforeach
+    @else
+        <div class="data-card">
+            <div class="empty-state">
+                <div class="empty-icon">📋</div>
+                <div class="empty-title">Tidak Ada Data</div>
+                <p class="empty-desc">
+                    @if($filterStroke || $filterYear)
+                        Tidak ada riwayat yang sesuai dengan filter yang dipilih.
+                    @else
+                        Atlet ini belum memiliki riwayat perlombaan yang tercatat.
+                    @endif
+                </p>
+            </div>
+        </div>
+    @endif
+
+    <div style="height: 0.5rem;"></div>
+</div>
+
+{{-- ── Sticky Action Bar (mobile) ──────────── --}}
+<div class="mobile-action-bar">
+    <a href="{{ route('event-history.index') }}" class="btn btn-primary"
+       style="background: var(--text-muted); color: #fff;">
+        ◀ Kembali
+    </a>
+    <a href="{{ route('athletes.show', $athlete) }}" class="btn btn-primary"
+       style="background: linear-gradient(135deg, #5ba8e8 0%, #2684d4 100%); color: #fff;">
+        👤 Profil
+    </a>
+    @if($athlete->parentUser && $athlete->parentUser->phone)
+    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $athlete->parentUser->phone) }}"
+       target="_blank" rel="noopener"
+       class="btn btn-primary"
+       style="background: #25D366; color: #fff;">
+        💬 WA
+    </a>
+    @endif
+</div>
+
+{{-- ── Filter Bottom Sheet (mobile show page) ── --}}
+<div class="filter-bottom-sheet-overlay" id="show-filter-sheet-overlay">
+    <div class="filter-bottom-sheet">
+        <div class="filter-sheet-handle"></div>
+        <div class="filter-sheet-title">⚙ Filter Riwayat Event</div>
+
+        <form method="GET" action="{{ route('event-history.show', $athlete) }}">
+            <div class="filter-sheet-group">
+                <label class="filter-sheet-label" for="m_stroke">Gaya Renang</label>
+                <select name="stroke" id="m_stroke" class="form-input">
+                    <option value="">Semua Gaya</option>
+                    @foreach(['bebas'=>'Bebas','dada'=>'Dada','kupu'=>'Kupu-Kupu','punggung'=>'Punggung','ganti'=>'Ganti'] as $val => $lbl)
+                        <option value="{{ $val }}" {{ $filterStroke === $val ? 'selected' : '' }}>{{ $lbl }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="filter-sheet-group">
+                <label class="filter-sheet-label" for="m_year">Tahun Event</label>
+                <select name="year" id="m_year" class="form-input">
+                    <option value="">Semua Tahun</option>
+                    @php $years = collect($historyRows)->map(fn($r) => substr($r['competition_date'],0,4))->unique()->sortDesc(); @endphp
+                    @foreach($years as $yr)
+                        <option value="{{ $yr }}" {{ $filterYear === $yr ? 'selected' : '' }}>{{ $yr }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="filter-sheet-actions">
+                <a href="{{ route('event-history.show', $athlete) }}" class="btn btn-accent"
+                   style="text-align: center; background-color: var(--text-muted); color: #fff;">
+                    Reset
+                </a>
+                <button type="submit" class="btn btn-primary">Terapkan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+{{-- ═══════════════════════════════════════
+     DESKTOP LAYOUT (unchanged)
+═══════════════════════════════════════ --}}
+<div style="display:flex;flex-direction:column;gap:1.75rem;" class="desktop-only">
 
     {{-- ─── Profile Header ─── --}}
     <div class="eh-profile-card">
@@ -258,9 +583,7 @@
                 <label>Tahun Event</label>
                 <select name="year" class="form-input" style="width:120px;padding:.55rem .75rem;font-size:.85rem;">
                     <option value="">Semua Tahun</option>
-                    @php
-                        $years = collect($historyRows)->map(fn($r) => substr($r['competition_date'],0,4))->unique()->sortDesc();
-                    @endphp
+                    @php $years = collect($historyRows)->map(fn($r) => substr($r['competition_date'],0,4))->unique()->sortDesc(); @endphp
                     @foreach($years as $yr)
                         <option value="{{ $yr }}" {{ $filterYear === $yr ? 'selected' : '' }}>{{ $yr }}</option>
                     @endforeach
@@ -278,10 +601,9 @@
 
     {{-- ─── History Sections per Event Key ─── --}}
     @php
-        $filteredSections = collect($historyByEvent)->filter(function($evData, $key) use ($filterStroke, $filterYear, $historyRows) {
+        $filteredSectionsDesktop = collect($historyByEvent)->filter(function($evData) use ($filterStroke, $filterYear) {
             if ($filterStroke && $evData['stroke'] !== $filterStroke) return false;
             if ($filterYear) {
-                // Check if any row in this section matches the year
                 $hasYear = collect($evData['history'])->contains(fn($r) => substr($r['competition_date'],0,4) === $filterYear);
                 if (!$hasYear) return false;
             }
@@ -289,8 +611,8 @@
         });
     @endphp
 
-    @if($filteredSections->count() > 0)
-        @foreach($filteredSections as $evKey => $evData)
+    @if($filteredSectionsDesktop->count() > 0)
+        @foreach($filteredSectionsDesktop as $evKey => $evData)
         @php
             $sectionRows = collect($evData['history']);
             if ($filterYear) {
@@ -317,21 +639,16 @@
                     <tbody>
                         @foreach($sectionRows as $row)
                         <tr>
-                            {{-- Event name --}}
                             <td>
                                 <div style="font-weight:700;color:var(--silver-200,#dde8f4);font-size:.875rem;">
                                     {{ $row['competition_name'] }}
                                 </div>
                             </td>
-
-                            {{-- Date --}}
                             <td style="text-align:center;white-space:nowrap;">
                                 <span style="font-size:.85rem;color:var(--silver-200,#dde8f4);">
                                     {{ $row['competition_date_formatted'] }}
                                 </span>
                             </td>
-
-                            {{-- Result --}}
                             <td style="text-align:center;">
                                 @if($row['result_status'] === 'finish')
                                     <span class="time-cell {{ $row['is_first_valid_result'] ? 'best' : 'normal' }}">
@@ -348,8 +665,6 @@
                                     <span style="color:var(--text-muted);font-style:italic;font-size:.8rem;">—</span>
                                 @endif
                             </td>
-
-                            {{-- PB Before Event --}}
                             <td style="text-align:center;">
                                 @if($row['result_status'] === 'finish')
                                     @if($row['pb_before_event'])
@@ -361,8 +676,6 @@
                                     <span style="color:var(--text-muted);font-size:.8rem;">—</span>
                                 @endif
                             </td>
-
-                            {{-- Difference / Keterangan --}}
                             <td style="text-align:center;">
                                 @if($row['result_status'] === 'finish')
                                     @if($row['is_first_valid_result'])
@@ -378,16 +691,10 @@
                                     @else
                                         <span style="color:var(--text-muted);font-size:.8rem;">—</span>
                                     @endif
-                                @elseif($row['result_status'] === 'DNS')
-                                    <span style="color:var(--text-muted);font-size:.8rem;">—</span>
-                                @elseif($row['result_status'] === 'DQ')
-                                    <span style="color:var(--text-muted);font-size:.8rem;">—</span>
                                 @else
                                     <span style="color:var(--text-muted);font-size:.8rem;">—</span>
                                 @endif
                             </td>
-
-                            {{-- Rank --}}
                             <td style="text-align:center;">
                                 @if($row['rank'])
                                     <span style="font-weight:800;font-size:.95rem;color:{{ $row['rank'] == 1 ? '#e8c96d' : ($row['rank'] == 2 ? '#9ca3af' : ($row['rank'] == 3 ? '#fb923c' : 'var(--text-muted)')) }};">
@@ -428,7 +735,7 @@
 </div>
 
 {{-- ─── Legend ─── --}}
-<div style="margin-top:1rem;padding:.85rem 1.25rem;background:rgba(10,22,40,.5);border:1px solid var(--glass-border);border-radius:.75rem;font-size:.78rem;color:var(--text-muted);display:flex;flex-wrap:wrap;gap:1.25rem;">
+<div class="desktop-only" style="margin-top:1rem;padding:.85rem 1.25rem;background:rgba(10,22,40,.5);border:1px solid var(--glass-border);border-radius:.75rem;font-size:.78rem;color:var(--text-muted);display:flex;flex-wrap:wrap;gap:1.25rem;">
     <span>📖 <strong style="color:var(--silver-200);">Keterangan:</strong></span>
     <span><span class="diff-faster" style="font-size:.78rem;">00.00.XX</span> = Lebih cepat dari PB (hijau)</span>
     <span><span class="diff-slower" style="font-size:.78rem;">00.00.XX</span> = Lebih lambat dari PB (merah)</span>
@@ -436,4 +743,43 @@
     <span><span class="diff-first" style="font-size:.78rem;">PB Awal</span> = Hasil pertama, belum ada PB sebelumnya</span>
     <span><span class="status-dns">DNS</span> / <span class="status-dq">DQ</span> = Tidak masuk perhitungan PB</span>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // ── Accordion toggle ────────────────────────────────
+    document.querySelectorAll('.m-section-header').forEach(function (header) {
+        header.addEventListener('click', function () {
+            this.closest('.m-section-accordion').classList.toggle('open');
+        });
+    });
+
+    // ── Show-page filter bottom sheet ───────────────────
+    const overlay = document.getElementById('show-filter-sheet-overlay');
+    const openBtn = document.getElementById('open-show-filter-sheet');
+    if (openBtn && overlay) {
+        openBtn.addEventListener('click', function () {
+            overlay.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        });
+        overlay.addEventListener('click', function (e) {
+            if (e.target === overlay) {
+                overlay.classList.remove('open');
+                document.body.style.overflow = '';
+            }
+        });
+        // Swipe-down to close
+        let startY = 0;
+        const sheet = overlay.querySelector('.filter-bottom-sheet');
+        sheet.addEventListener('touchstart', function (e) { startY = e.touches[0].clientY; }, { passive: true });
+        sheet.addEventListener('touchend', function (e) {
+            if (e.changedTouches[0].clientY - startY > 80) {
+                overlay.classList.remove('open');
+                document.body.style.overflow = '';
+            }
+        }, { passive: true });
+    }
+});
+</script>
 @endsection
