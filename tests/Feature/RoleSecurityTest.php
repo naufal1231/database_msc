@@ -74,10 +74,10 @@ class RoleSecurityTest extends TestCase
             'address' => 'Jl. Renang No. 1',
             'phone' => '081234567890',
             'wa_status' => 'Terhubung',
-            'poin_lebih_cepat' => 3,
-            'poin_sama' => 1,
+            'poin_lebih_cepat' => 10,
+            'poin_sama' => 5,
             'poin_lebih_lambat' => 0,
-            'poin_debut' => 2,
+            'poin_debut' => 10,
             'performance_good_min' => 75,
             'performance_fair_min' => 50,
         ]);

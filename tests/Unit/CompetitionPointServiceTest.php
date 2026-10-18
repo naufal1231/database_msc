@@ -197,12 +197,12 @@ class CompetitionPointServiceTest extends TestCase
 
     public function test_format_selisih_faster(): void
     {
-        $this->assertSame('▼ -00.01.71', CompetitionPointService::formatSelisih(171, 'faster'));
+        $this->assertSame('-00.01.71', CompetitionPointService::formatSelisih(171, 'faster'));
     }
 
     public function test_format_selisih_slower(): void
     {
-        $this->assertSame('▲ +00.00.45', CompetitionPointService::formatSelisih(45, 'slower'));
+        $this->assertSame('+00.00.45', CompetitionPointService::formatSelisih(45, 'slower'));
     }
 
     public function test_format_selisih_equal(): void

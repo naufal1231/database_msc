@@ -174,8 +174,9 @@ class CompetitionPointService
             ];
         }
 
-        $maxPoints  = $countedEntries * 10;
-        $percentage = ($totalPoints / $maxPoints) * 100;
+        $poinMaksimalPerNomor = (int) ($cfg['poin_lebih_cepat'] ?? 10);
+        $maxPoints  = $countedEntries * $poinMaksimalPerNomor;
+        $percentage = $maxPoints > 0 ? ($totalPoints / $maxPoints) * 100 : 0;
 
         return [
             'total_points'    => $totalPoints,
@@ -259,9 +260,9 @@ class CompetitionPointService
         $formatted = TimeHelper::fromCentiseconds($selisihCs);
 
         if ($direction === 'faster') {
-            return '▼ -' . $formatted;
+            return '-' . $formatted;
         }
 
-        return '▲ +' . $formatted;
+        return '+' . $formatted;
     }
 }

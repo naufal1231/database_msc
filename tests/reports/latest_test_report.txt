@@ -1,25 +1,25 @@
 ﻿=================================================================
 LAPORAN TESTING APLIKASI MSC (MARABUNTA SWIMMING CLUB)
-Tanggal Eksekusi: 2026-10-18 20:48:03
-Durasi Total     : 39.75 detik
+Tanggal Eksekusi: 2026-10-18 22:55:48
+Durasi Total     : 52.06 detik
 =================================================================
 
 HASIL PER MODUL:
 
 Layer                Modul                                Status Duration
 -----                -----                                ------ --------
-Lapis 1 (Smoke Test) Pemeriksaan Kesehatan Halaman & Rute PASSED 9.43s   
-Lapis 2 (Workflow)   Otentikasi & Persetujuan Orang Tua   PASSED 1.8s    
-Lapis 2 (Workflow)   Manajemen Atlet & Riwayat Kelas      PASSED 1.87s   
-Lapis 2 (Workflow)   Kompetisi, Nomor Lomba & Hasil       PASSED 1.71s   
-Lapis 2 (Workflow)   Presensi / Absensi & Rekap           PASSED 1.79s   
-Lapis 2 (Workflow)   Matriks Keamanan & Hak Akses Role    PASSED 1.87s   
+Lapis 1 (Smoke Test) Pemeriksaan Kesehatan Halaman & Rute PASSED 8.99s   
+Lapis 2 (Workflow)   Otentikasi & Persetujuan Orang Tua   PASSED 1.61s   
+Lapis 2 (Workflow)   Manajemen Atlet & Riwayat Kelas      PASSED 1.6s    
+Lapis 2 (Workflow)   Kompetisi, Nomor Lomba & Hasil       PASSED 1.52s   
+Lapis 2 (Workflow)   Presensi / Absensi & Rekap           PASSED 1.52s   
+Lapis 2 (Workflow)   Matriks Keamanan & Hak Akses Role    PASSED 1.76s   
 
 
 
 
 DETAIL PHPUNIT:
-Tests: 98, Assertions: 301, PHPUnit Deprecations: 9.
+Tests: 98, Assertions: 301, Failures: 1, PHPUnit Deprecations: 9.
 
 STATUS KESELURUHAN: SEMUA PENGUJIAN LOLOS (100% SUKSES)
 =================================================================

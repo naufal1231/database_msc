@@ -193,6 +193,14 @@
     $filterYear   = request('year', '');
     $filterEvent  = request('event_name', '');
     $mobileFilterCount = ($filterStroke ? 1 : 0) + ($filterYear ? 1 : 0);
+    $filteredSections = collect($historyByEvent)->filter(function($evData) use ($filterStroke, $filterYear) {
+        if ($filterStroke && $evData['stroke'] !== $filterStroke) return false;
+        if ($filterYear) {
+            $hasYear = collect($evData['history'])->contains(fn($r) => substr($r['competition_date'],0,4) === $filterYear);
+            if (!$hasYear) return false;
+        }
+        return true;
+    });
 @endphp
 
 {{-- ═══════════════════════════════════════
@@ -279,16 +287,7 @@
                          padding: 0.6rem 0.875rem; background: var(--navy-800);
                          border: 1px solid var(--glass-border); border-radius: 0.65rem;
                          font-size: 0.8rem; color: var(--text-muted);">
-                📋 {{ count($historyRows) }} riwayat
-                @php $filteredSections = collect($historyByEvent)->filter(function($evData) use ($filterStroke, $filterYear) {
-                    if ($filterStroke && $evData['stroke'] !== $filterStroke) return false;
-                    if ($filterYear) {
-                        $hasYear = collect($evData['history'])->contains(fn($r) => substr($r['competition_date'],0,4) === $filterYear);
-                        if (!$hasYear) return false;
-                    }
-                    return true;
-                }); @endphp
-                · {{ $filteredSections->count() }} nomor
+                📋 {{ count($historyRows) }} riwayat · {{ $filteredSections->count() }} nomor
             </span>
             <button type="button" id="open-show-filter-sheet" class="mobile-filter-btn">
                 ⚙ Filter

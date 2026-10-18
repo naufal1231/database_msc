@@ -102,7 +102,7 @@
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
                     <div class="form-group">
                         <label for="poin_lebih_cepat" class="form-label">
-                            <span style="color: #22c55e; font-weight: 700;">▼ Lebih Cepat</span> dari Limit (PB)
+                            <span style="color: #22c55e; font-weight: 700;">Lebih Cepat</span> dari Limit (PB)
                         </label>
                         <input type="number" min="0" max="100" name="poin_lebih_cepat" id="poin_lebih_cepat" class="form-input"
                             value="{{ old('poin_lebih_cepat', $settings['poin_lebih_cepat'] ?? 10) }}"
@@ -122,7 +122,7 @@
 
                     <div class="form-group">
                         <label for="poin_lebih_lambat" class="form-label">
-                            <span style="color: #ef4444; font-weight: 700;">▲ Lebih Lambat</span> dari Limit (PB)
+                            <span style="color: #ef4444; font-weight: 700;">Lebih Lambat</span> dari Limit (PB)
                         </label>
                         <input type="number" min="0" max="100" name="poin_lebih_lambat" id="poin_lebih_lambat" class="form-input"
                             value="{{ old('poin_lebih_lambat', $settings['poin_lebih_lambat'] ?? 0) }}"
