@@ -42,7 +42,14 @@ class AthleteController extends Controller
         // Get unique list of KU years from the database
         $kus = Athlete::select('ku')->distinct()->orderBy('ku', 'desc')->pluck('ku');
 
-        return view('admin.athletes.index', compact('athletes', 'classes', 'kus'));
+        $stats = [
+            'total' => Athlete::count(),
+            'male' => Athlete::where('gender', 'L')->count(),
+            'female' => Athlete::where('gender', 'P')->count(),
+            'classes_count' => $classes->count(),
+        ];
+
+        return view('admin.athletes.index', compact('athletes', 'classes', 'kus', 'stats'));
     }
 
     /**
