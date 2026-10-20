@@ -34,6 +34,12 @@
                             <span class="nav-label">Profil Akun</span>
                         </a>
                     </li>
+                    <li class="nav-item {{ request()->routeIs('parent.dispensation.*') ? 'active' : '' }}">
+                        <a href="{{ route('parent.dispensation.index') }}">
+                            <span class="nav-icon">📋</span>
+                            <span class="nav-label">Dispensasi Atlet</span>
+                        </a>
+                    </li>
                 </ul>
             </nav>
 

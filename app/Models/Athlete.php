@@ -51,6 +51,11 @@ class Athlete extends Model
     {
         return $this->hasMany(Attendance::class);
     }
+
+    public function dispensationRequests(): HasMany
+    {
+        return $this->hasMany(DispensationRequest::class);
+    }
     
     public function getMonthlyAttendancePercentage(int $month, int $year): float
     {

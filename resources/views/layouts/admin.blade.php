@@ -46,6 +46,12 @@
                             <span class="nav-label">Absensi</span>
                         </a>
                     </li>
+                    <li class="nav-item {{ request()->routeIs('admin.dispensation.*') ? 'active' : '' }}">
+                        <a href="{{ route('admin.dispensation.index') }}">
+                            <span class="nav-icon">📋</span>
+                            <span class="nav-label">Dispensasi Atlet</span>
+                        </a>
+                    </li>
                     <li class="nav-item {{ request()->routeIs('reports.*') ? 'active' : '' }}">
                         <a href="{{ route('reports.index') }}">
                             <span class="nav-icon">📊</span>

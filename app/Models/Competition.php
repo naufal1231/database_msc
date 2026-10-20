@@ -116,4 +116,9 @@ class Competition extends Model
     {
         return $this->hasMany(CompetitionEvent::class, 'competition_id');
     }
+
+    public function dispensationRequests(): HasMany
+    {
+        return $this->hasMany(DispensationRequest::class);
+    }
 }

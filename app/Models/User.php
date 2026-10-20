@@ -61,6 +61,22 @@ class User extends Authenticatable
         return $this->athletes();
     }
 
+    /**
+     * Pengajuan dispensasi yang dibuat oleh orang tua ini.
+     */
+    public function dispensationRequests()
+    {
+        return $this->hasMany(DispensationRequest::class, 'parent_id');
+    }
+
+    /**
+     * Dispensasi yang diverifikasi oleh coach/admin ini.
+     */
+    public function verifiedDispensations()
+    {
+        return $this->hasMany(DispensationRequest::class, 'verified_by');
+    }
+
     public function isSuperAdmin(): bool
     {
         return $this->role === 'super_admin';

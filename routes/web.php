@@ -53,6 +53,15 @@ Route::middleware(['auth', 'active', 'role:admin,super_admin'])->prefix('admin')
     Route::post('parents/{user}/approve', [\App\Http\Controllers\ParentApprovalController::class, 'approve'])->name('parents.approve');
     Route::delete('parents/{user}/reject', [\App\Http\Controllers\ParentApprovalController::class, 'reject'])->name('parents.reject');
 
+    // Dispensasi Atlet Routes
+    Route::get('dispensasi', [\App\Http\Controllers\DispensationController::class, 'index'])->name('admin.dispensation.index');
+    // Template routes HARUS sebelum {dispensation} wildcard
+    Route::get('dispensasi/template', [\App\Http\Controllers\DispensationController::class, 'templatePage'])->name('admin.dispensation.template');
+    Route::post('dispensasi/template', [\App\Http\Controllers\DispensationController::class, 'uploadTemplate'])->name('admin.dispensation.template.upload');
+    Route::post('dispensasi/{dispensation}/approve', [\App\Http\Controllers\DispensationController::class, 'approve'])->name('admin.dispensation.approve');
+    Route::post('dispensasi/{dispensation}/reject', [\App\Http\Controllers\DispensationController::class, 'reject'])->name('admin.dispensation.reject');
+    Route::get('dispensasi/{dispensation}/pdf', [\App\Http\Controllers\DispensationController::class, 'downloadPdf'])->name('admin.dispensation.pdf');
+
     // Attendance routes
     Route::get('absensi', [\App\Http\Controllers\AttendanceController::class, 'index'])->name('attendance.index');
     Route::post('absensi', [\App\Http\Controllers\AttendanceController::class, 'store'])->name('attendance.store');
@@ -68,6 +77,12 @@ Route::middleware(['auth', 'active', 'role:user'])->prefix('parent')->group(func
     Route::get('/absensi/{month}/{year}', [\App\Http\Controllers\ParentController::class, 'attendanceMonthly'])->name('parent.attendance.monthly');
     // Event History for parent (secured by parentShow method)
     Route::get('/event-history/{athlete}', [\App\Http\Controllers\EventHistoryController::class, 'parentShow'])->name('parent.event-history.show');
+
+    // Dispensasi Atlet (Orang Tua)
+    Route::get('/dispensasi', [\App\Http\Controllers\Parent\DispensationController::class, 'index'])->name('parent.dispensation.index');
+    Route::get('/dispensasi/buat', [\App\Http\Controllers\Parent\DispensationController::class, 'create'])->name('parent.dispensation.create');
+    Route::post('/dispensasi', [\App\Http\Controllers\Parent\DispensationController::class, 'store'])->name('parent.dispensation.store');
+    Route::get('/dispensasi/{dispensation}/unduh', [\App\Http\Controllers\Parent\DispensationController::class, 'download'])->name('parent.dispensation.download');
 });
 
 Route::middleware('auth')->group(function () {
